@@ -1,0 +1,30 @@
+{
+  "name": "databoost",
+  "version": "1.0.0",
+  "description": "data enricher for Inventree",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tikinson/databoost.git"
+  },
+  "keywords": [],
+  "author": "tikinson",
+  "license": "GPL-3.0-or-later",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tikinson/databoost/issues"
+  },
+  "homepage": "https://github.com/tikinson/databoost#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "papaparse": "^5.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
