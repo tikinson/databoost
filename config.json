@@ -1,0 +1,11 @@
+{
+    "directories": {
+      "input": "./input",
+      "output": "./output"
+    },
+    "logLevel": "info",
+    "expectedSupplier": {
+        "lcsc": ""
+    }
+  }
+  
