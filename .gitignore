@@ -132,3 +132,4 @@ dist
 # you don't really need input dir with user scsv files
 input
 token.json*
+jsconfig.json
