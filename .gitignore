@@ -129,6 +129,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# you don't really need a input csv files
-
+# you don't really need input dir with user scsv files
 input
+token.json*
