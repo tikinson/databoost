@@ -51,39 +51,32 @@ class Enricher {
             let readLogMsg = `parsed ${file}, datalength: ${parsedData.data.length} /n fields: ${parsedData.meta.fields}`
             logger.info(readLogMsg)
             this.parsedFile = parsedData.data
+            //this._parsedInfo can give us the idea about data that we put into input file.
+            //JSON that contains model of data that valuable for our case i created manually
+            //TODO: auto creating data model
             this._parsedInfo = parsedData.meta
+            
         } catch (error) {
             logger.error(error)
             throw new Error(`an error occurs with file ${file}`)
         }
     }
 
-    connect() {
+    async connect() {
         //logic of connection to Inventree instance
-
+        const manager = new TokenManager()
+        const checkingResult = await manager.checkToken()
+        console.log('TokenManager check', checkingResult);
+        
     }
 
 }
 
 let boost = new Enricher()
+boost.connect()
 boost.readCSV('./input/example.csv')
-// console.log(boost.parsedInfo)
 
-async function generateToken() {
-    try {
-        logger.info('Starting the token generation process...')
-        
-        const tokenManager = new TokenManager() 
-        const token = await tokenManager.generateToken();
-        
-        logger.info(`Token has been generated : ${token}`)
-    } catch (error) {
-        console.error('Failed to generate token:', error.message)
-        logger.error('Error by generating the token', error.message)
-    }
-}
 
-generateToken();
 
 
 
