@@ -130,6 +130,7 @@ dist
 .pnp.*
 
 # you don't really need input dir with user scsv files
-input
-token.json*
+input*
+output*
+token.json
 jsconfig.json
