@@ -2,8 +2,6 @@ import fs from 'fs'
 import path from 'path'
 import dotenv from 'dotenv'
 
-
-
 dotenv.config()  
 
 class Logger {
@@ -82,7 +80,7 @@ class TokenManager {
 		return this.#tokenExpiry
 	}
 
-	// init token, keeps it in private field
+	// init token, keeps it in private field, write it in file after generation
 	async generateToken() {
 		try {
 			this.logger.info('Starting token generation')
@@ -138,5 +136,39 @@ class TokenManager {
 	
 }
 
-// Експортуємо необхідні компоненти
-export { Logger, TokenManager }
+
+class RequestHandler {
+	constructor(){
+		this.logger = new Logger()
+	}
+	// LCSC NUMBER is something like unique identificator of part in LCSC so i use it as ID in this case
+	async getPartLinkByID (id) {
+		//THIS MUST BE FACTCHECKED!!! ACHTUNG!!!
+		const url = `https://lcsc.com/api/global/additional/search?q=${id}`
+		try {
+			const response = await fetch(url, {
+				method : 'GET',
+
+			})
+			if (!response.ok){
+				throw new Error(`failed to fetch data for ${id}`)
+			}
+
+			const data = await response.json()
+			console.log(data);
+			return data
+			
+		} catch (error) {
+			this.logger.error(error)
+		}
+	}
+
+	//i found a symply way to create a link for part with LCSC Number
+	createPartLinkByID (id) {
+		let link = `https://www.lcsc.com/product-detail/${id}.html`;
+		return link
+	}
+}
+
+
+export { Logger, TokenManager, RequestHandler}
