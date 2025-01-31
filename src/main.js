@@ -2,15 +2,19 @@ import fs from 'fs'
 import path from 'path'
 import Papa from 'papaparse'
 
-import {Logger, TokenManager, RequestHandler } from './utils/utils.js'
+import { TokenManager } from './tokenManager.js'
+import { Logger } from  './logger.js'
+import { DataResolver } from './dataResolver.js'
+import { RequestHandler } from './requestHandler.js'
 
 
 const configPath = path.resolve("./config.json")
 const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
 const workingDir = process.cwd()
 
-let initMsg = `main script started with configs: ${JSON.stringify(config)} in directory: ${workingDir}`
+const initMsg = `main script started with configs: ${JSON.stringify(config)} in directory: ${workingDir}`
 const logger = new Logger()
+logger.warn('<====================== !!!DATABOOST APP HAS BEEN STARTED!!! =========================>')
 logger.info(initMsg)
 
 class Enricher {
@@ -44,7 +48,7 @@ class Enricher {
         //logic of connection to Inventree instance
         const manager = new TokenManager()
         const checkingResult = await manager.checkToken()
-        console.log('TokenManager check', checkingResult);   
+        console.log('TokenManager check', checkingResult)
     }
 
 
@@ -73,7 +77,7 @@ class Enricher {
     processCSVData (){
         try {
             //detecting "data model"
-            let inputDataModel = {}
+            const inputDataModel = {}
             this._parsedInfo.fields.reduce((model, field)=>{
                 model[field] = this.getFieldType(field)
                 return model
@@ -83,19 +87,15 @@ class Enricher {
             logger.info(`detected data input data model : ${JSON.stringify(this.inputDataModel)}`)
             fs.writeFileSync('./input/model.json',JSON.stringify(this.inputDataModel))
             logger.info(`expected data model : ${JSON.stringify(this.expectedDataModel)}`)
-
+        
             //for first time we're just adding only link for our parts, but i expect another fields to be added in future.
-            let inputFields = Object.keys(this.inputDataModel)        
-            let outputFields = Object.keys(this.expectedDataModel)
             
-            const missingFields = outputFields.filter(
-                (field) => !inputFields.includes(field)
-            );
+            const missingFields = Object.keys(this.expectedDataModel).filter(
+                (field) => !Object.keys(this.inputDataModel).includes(field)
+            )
             logger.info(`detected missing field(s) ${missingFields}`)
-            console.log(typeof(missingFields));
+            return this.processMissingData(missingFields, this.parsedFile)
 
-            let processedData = this.processMissingData(missingFields, this.parsedFile)
-            return processedData
         } catch (error) {
             logger.error(error)
             throw new Error(error)
@@ -110,11 +110,11 @@ class Enricher {
         }
         logger.info(`Processing of missing data started`)
         
-        let request = new RequestHandler();
+        const request = new RequestHandler();
         
-        let result = parsedDataArray.map((object) => {
+        const result = parsedDataArray.map((object) => {
             for (let field of targetFields) {
-                let id = object["LCSC Part Number"]
+                const id = object["LCSC Part Number"]
                 logger.info(`Checking field: ${field} with value: ${id}`)
                 if (field === "LCSC Link") {
                     object[field] = request.createPartLinkByID(id)
@@ -125,8 +125,6 @@ class Enricher {
             }
             return object
         })
-    
-        logger.info(`UPDATED OBJECTS : ${JSON.stringify(result, null, 2)}`)
         return result;
     }
     
@@ -145,10 +143,12 @@ class Enricher {
     }
 }
 
-let boost = new Enricher()
+const boost = new Enricher()
 boost.connect()
 boost.readCSV('./input/example.csv')
-boost.processCSVData()
+const enrichedData = boost.processCSVData()
+logger.info(`UPDATED objects after processCSVData : ${JSON.stringify(enrichedData, null, 2)}`)
+
 
 
 
