@@ -24,6 +24,7 @@ class Enricher {
         this._parsedInfo
         this.inputDataModel
         this.expectedDataModel = JSON.parse(fs.readFileSync('./output/model.json')) //must be specified by user
+        this.credentials
     }
 
     get parsedFile() {
@@ -46,9 +47,12 @@ class Enricher {
 
     async connect() {
         //logic of connection to Inventree instance
-        const manager = new TokenManager()
-        const checkingResult = await manager.checkToken()
+        const tokenManager = new TokenManager()
+        const checkingResult = await tokenManager.checkToken()
+        const credentials = await tokenManager.getRequestInfo()
+        this.credentials = credentials
         console.log('TokenManager check', checkingResult)
+        return this.credentials
     }
 
 
@@ -110,7 +114,7 @@ class Enricher {
         }
         logger.info(`Processing of missing data started`)
         
-        const request = new RequestHandler();
+        const request = new DataResolver();
         
         const result = parsedDataArray.map((object) => {
             for (let field of targetFields) {
@@ -141,15 +145,34 @@ class Enricher {
             return '';
         }
     }
+
 }
 
 const boost = new Enricher()
-boost.connect()
+const connection = await boost.connect()
+boost.baseUrl = connection[0]
+boost.token = connection[1]
+
+const api = new RequestHandler(boost.baseUrl, boost.token)
+const resolver = new DataResolver(api)
+
+
+
 boost.readCSV('./input/example.csv')
 const enrichedData = boost.processCSVData()
 logger.info(`UPDATED objects after processCSVData : ${JSON.stringify(enrichedData, null, 2)}`)
 
 
+async function getCurrentCategories() {
+    const categories = await resolver.getCategories()
+    return categories
+}    
+try {
+    let allCategories = await getCurrentCategories()
+    logger.logging(`Got all categories: ${allCategories}`)
+} catch (error) {
+    logger.error(error)
+}
 
 
 

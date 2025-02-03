@@ -11,7 +11,6 @@ class TokenManager {
 	#token
 	#tokenExpiry
 	#tokenFilePath
-
 	
 	constructor() {
 		this.#inventreeUrl = process.env.INVENTREE_URL
@@ -44,6 +43,10 @@ class TokenManager {
 
 	get tokenExpiry() {
 		return this.#tokenExpiry
+	}
+
+	get inventreeUrl() {
+		return this.#inventreeUrl
 	}
 
 	// init token, keeps it in private field, write it in file after generation
@@ -89,7 +92,14 @@ class TokenManager {
 			this.logger.info(`Token ${this.#token} readed from ${this.#tokenFilePath}`)
 		}
 		return this.#token
-	}	
+	}
+
+	async getRequestInfo () {
+		let response = []
+		response[0] = this.#inventreeUrl
+		response[1] = this.#token
+		return response
+	}
 }
 
 export { TokenManager }
