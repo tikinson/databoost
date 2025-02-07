@@ -62,32 +62,32 @@ class DataResolver {
             // first of all let's check if category created by package is matching every category from server
             // to do so we can create expected category from package or handle some exceptions regards description
 
+            let partMainObject = {}
+
             let expectedCategory = this.initCategoryByPackage(object.Package)
             if (expectedCategory === '-' || !expectedCategory) 
                 expectedCategory = this.initCategoryByDescription(object.Description)
             console.log("-----> category that we want ot find : ", expectedCategory)
 
-            let matchedCategory = this.categories.filter((cat)=> {cat.name === expectedCategory})
-            console.log(matchedCategory);
-            
-            const categoryExists = this.categories.some((cat)=>{cat.name === expectedCategory})
+            const matchedCategory = this.categories.filter(category => category.name == expectedCategory)
+            console.log("-----> matchedCategory : ", matchedCategory)
 
-            console.log("-----> match : ",categoryExists);
-            
-            if (!categoryExists) {
+            // in theory matched category may be defined with category and subcategory, but for now we can take only first element    
+            if (!matchedCategory.length) {
                 const newCategoryObj = {
                     name: expectedCategory,
                     description: object.Description,
                     default_keywords: object.Description,
                     parent: null,
-                    structural: true
+                    structural: false
                 }
                 const response = await this.api.post('/api/part/category/', newCategoryObj)
-                console.log(JSON.stringify(response))
                 const updatedCategories = await this.getCategories()
-                console.log(`updated categories : ${updatedCategories}`)
-            }
-            
+                this.setCategories(updatedCategories)
+                console.log(`updated categories : ${updatedCategories, this.categories}`)
+            }else{
+                
+            }  
         })
     }
 }
