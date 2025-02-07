@@ -1,3 +1,5 @@
+import { Logger } from  './logger.js'
+
 // I expect that data resolver class stands for preparing enriched data to
 // be consumed by inventree api. Categorization of parts, decision about 
 // creating new part/updating qty of existing part, and related stuff.
@@ -11,6 +13,7 @@ class DataResolver {
     constructor(requestHandler = null) {
         this.api = requestHandler
         this.categories
+        this.logger = new Logger()
     }
 
     //i found a symply way to create a link for part with LCSC Number
@@ -62,7 +65,6 @@ class DataResolver {
             // first of all let's check if category created by package is matching every category from server
             // to do so we can create expected category from package or handle some exceptions regards description
 
-            let partMainObject = {}
 
             let expectedCategory = this.initCategoryByPackage(object.Package)
             if (expectedCategory === '-' || !expectedCategory) 
@@ -85,9 +87,28 @@ class DataResolver {
                 const updatedCategories = await this.getCategories()
                 this.setCategories(updatedCategories)
                 console.log(`updated categories : ${updatedCategories, this.categories}`)
-            }else{
+            }
+            // this.categories.map(cat => console.log('category',cat));
+            let partMainObject = {
+                category : matchedCategory.pop().pk,
+                component : true,
+                description : object.Description,
+                active : true,
+                IPN : object["LCSC Part Number"],
+                keywords : object.Description,
+                link : object["LCSC Link"],
+                minimum_stock : object["Order Qty."],
+                name : object.Description,
+                custom_fields : {
+                    amount : object["Order Qty."],
+                    manufacturer : object.Manufacturer
+                }
+            }
+            let res = await this.api.post('/api/part/', partMainObject)
+            console.log(res)
+            this.logger.logging(`Response from adding part : ${JSON.stringify(res)}`)
+            return res
                 
-            }  
         })
     }
 }
