@@ -33,9 +33,9 @@ class RequestHandler {
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) {
-            throw new Error(`POST ${endpoint} failed: ${response.status}`);
-        }
+        // if (!response.ok) {
+        //     throw new Error(`POST ${endpoint} failed: ${response.status}`);
+        // }
 
         return response.json();
     }

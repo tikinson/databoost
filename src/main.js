@@ -163,17 +163,30 @@ const enrichedData = boost.processCSVData()
 logger.info(`UPDATED objects after processCSVData : ${JSON.stringify(enrichedData, null, 2)}`)
 
 
-async function getCurrentCategories() {
-    const categories = await resolver.getCategories()
-    return categories
-}    
-try {
-    let allCategories = await getCurrentCategories()
-    logger.logging(`Got all categories: ${allCategories}`)
-} catch (error) {
-    logger.error(error)
+// async function getCurrentCategories() {
+//     const categories = await resolver.getCategories()
+//     return categories
+// }    
+const start = async () => {
+    try {
+        //procedure for reaquesting list of categories
+    
+        const allCategories = await resolver.getCategories()
+        if (Array.isArray(allCategories) && allCategories.length === 0){
+            logger.logging("There is no categories on server, responce is empty")
+        }
+        //logger.logging(`Got all categories: ${allCategories}`)
+        resolver.setCategories(allCategories)
+        
+        // Categories obtained, let's try to add some parts in database
+        resolver.handleEnrichedData(enrichedData)
+
+    
+    } catch (error) {
+        logger.error(error)
+    }
+    
 }
-
-
-
+let res = await start()
+console.log(res);
 
