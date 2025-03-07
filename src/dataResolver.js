@@ -14,6 +14,7 @@ class DataResolver {
         this.api = requestHandler
         this.categories
         this.logger = new Logger()
+        this.partsList 
     }
 
     //i found a symply way to create a link for part with LCSC Number
@@ -58,21 +59,33 @@ class DataResolver {
         this.categories = categoriesArray
     }
 
+    async getPartsList() {
+        return await this.api.get(`/api/part/`)
+    }
+
+    checkExistingPart(part) {
+        //returns id if exists
+        return this.partsList.find(p => p.IPN === part['LCSC Part Number'])
+        
+    }
+
     async handleEnrichedData (data) {
-        //console.log(`there is categories : ${}`)
+
+        this.partsList = await this.getPartsList()
+        console.log(this.partsList);
+        
 
         data.map(async(object)=>{
             // first of all let's check if category created by package is matching every category from server
             // to do so we can create expected category from package or handle some exceptions regards description
 
-
             let expectedCategory = this.initCategoryByPackage(object.Package)
             if (expectedCategory === '-' || !expectedCategory) 
                 expectedCategory = this.initCategoryByDescription(object.Description)
-            console.log("-----> category that we want ot find : ", expectedCategory)
+            // console.log("-----> category that we want ot find : ", expectedCategory)
 
             const matchedCategory = this.categories.filter(category => category.name == expectedCategory)
-            console.log("-----> matchedCategory : ", matchedCategory)
+            // console.log("-----> matchedCategory : ", matchedCategory)
 
             // in theory matched category may be defined with category and subcategory, but for now we can take only first element    
             if (!matchedCategory.length) {
@@ -88,7 +101,14 @@ class DataResolver {
                 this.setCategories(updatedCategories)
                 console.log(`updated categories : ${updatedCategories, this.categories}`)
             }
-            // this.categories.map(cat => console.log('category',cat));
+
+            //let's check part by IPN
+            console.log('cheking part', object['LCSC Part Number']);
+            
+            let partExists = this.checkExistingPart(object)
+            console.log('current part exists in database with number', partExists.IPN);
+            
+
             let partMainObject = {
                 category : matchedCategory.pop().pk,
                 component : true,
@@ -100,7 +120,7 @@ class DataResolver {
                 minimum_stock : object["Order Qty."],
                 name : object.Description,
                 custom_fields : {
-                    amount : object["Order Qty."],
+                    initial_amount : object["Order Qty."],
                     manufacturer : object.Manufacturer
                 }
             }

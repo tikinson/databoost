@@ -14,7 +14,7 @@ const workingDir = process.cwd()
 
 const initMsg = `main script started with configs: ${JSON.stringify(config)} in directory: ${workingDir}`
 const logger = new Logger()
-logger.warn('<====================== !!!DATABOOST APP HAS BEEN STARTED!!! =========================>')
+//logger.warn('<====================== !!!DATABOOST APP HAS BEEN STARTED!!! =========================>')WWW
 logger.info(initMsg)
 
 class Enricher {
@@ -160,7 +160,7 @@ const resolver = new DataResolver(api)
 
 boost.readCSV('./input/example.csv')
 const enrichedData = boost.processCSVData()
-logger.info(`UPDATED objects after processCSVData : ${JSON.stringify(enrichedData, null, 2)}`)
+//logger.info(`UPDATED objects after processCSVData : ${JSON.stringify(enrichedData, null, 2)}`)
 
 
 // async function getCurrentCategories() {
@@ -177,6 +177,8 @@ const start = async () => {
         }
         //logger.logging(`Got all categories: ${allCategories}`)
         resolver.setCategories(allCategories)
+
+
         
         // Categories obtained, let's try to add some parts in database
         resolver.handleEnrichedData(enrichedData)
