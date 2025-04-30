@@ -169,7 +169,7 @@ logger.info(`UPDATED objects after processCSVData : ${JSON.stringify(enrichedDat
 // }    
 const start = async () => {
     try {
-        //procedure for reaquesting list of categories
+        //procedure for requesting list of categories
     
         const allCategories = await resolver.getCategories()
         if (Array.isArray(allCategories) && allCategories.length === 0){

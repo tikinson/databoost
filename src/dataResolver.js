@@ -62,17 +62,16 @@ class DataResolver {
         //console.log(`there is categories : ${}`)
 
         data.map(async(object)=>{
-            // first of all let's check if category created by package is matching every category from server
+            // first of all let's check if category created by package is matching any category from server
             // to do so we can create expected category from package or handle some exceptions regards description
-
 
             let expectedCategory = this.initCategoryByPackage(object.Package)
             if (expectedCategory === '-' || !expectedCategory) 
                 expectedCategory = this.initCategoryByDescription(object.Description)
-            console.log("-----> category that we want ot find : ", expectedCategory)
+            //console.log("-----> category that we want ot find : ", expectedCategory)
 
             const matchedCategory = this.categories.filter(category => category.name == expectedCategory)
-            console.log("-----> matchedCategory : ", matchedCategory)
+            //console.log("-----> matchedCategory : ", matchedCategory)
 
             // in theory matched category may be defined with category and subcategory, but for now we can take only first element    
             if (!matchedCategory.length) {
